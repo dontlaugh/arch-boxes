@@ -1,0 +1,33 @@
+diff --git a/provision/postinstall.sh b/provision/postinstall.sh
+index a2ec0a9..30c627f 100644
+--- a/provision/postinstall.sh
++++ b/provision/postinstall.sh
+@@ -4,9 +4,27 @@ set -e
+ set -x
+ 
+ # setting hostname, locales, etc
+-hostnamectl set-hostname "archlinux"
++hostnamectl set-hostname $HOSTNAME
+ localectl set-keymap "us"
+ timedatectl set-ntp true
+ 
+ #setting link to systemd-resolved
+ ln -sf /var/run/systemd/resolve/resolv.conf /etc/resolv.conf
++
++
++# set custom DNS servers
++mkdir -p /etc/systemd/resolved.conf.d
++
++cat << EOF > /etc/systemd/resolved.conf.d/lan_dns.conf
++[Resolve]
++DNS=192.168.1.1 
++Domains=~.
++EOF
++
++
++cat << EOF > /etc/systemd/resolved.conf.d/virbr0_dns.conf
++[Resolve]
++DNS=192.168.122.1 
++Domains=~.
++EOF
++

@@ -1,0 +1,37 @@
+diff --git a/provision/qemu.sh b/provision/qemu.sh
+index aa36e03..199dcf7 100644
+--- a/provision/qemu.sh
++++ b/provision/qemu.sh
+@@ -5,3 +5,32 @@ set -x
+ 
+ sudo pacman -S --noconfirm linux-headers
+ sudo pacman -S --noconfirm qemu-guest-agent
++
++# patched in
++sudo pacman -S --noconfirm kitty-terminfo consul jq vim
++
++# We should not need to set a bind_addr explicity at first boot time, since
++# we only have a single ipv4 address, and consul will advertise the correct
++# on automatically. We could pick an address with this script, however, if
++# we ever needed to:
++#ip -json -f inet addr show eth0 | jq -r '.[0].addr_info[0].local'
++
++# /etc/consul.d is provided by Arch
++sudo tee /etc/consul.d/agent.hcl << EOF
++
++server = false
++datacenter = "home"
++data_dir = "/var/lib/consul"
++retry_join = [
++    "$CONSUL_SERVER",
++]
++log_level = "INFO"
++enable_syslog = true
++acl_enforce_version_8 = false
++enable_script_checks = true
++
++EOF
++
++sudo systemctl daemon-reload
++sudo systemctl enable consul
++

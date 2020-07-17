@@ -1,0 +1,51 @@
+diff --git a/local.json b/local.json
+index 19ef967..ce01fda 100644
+--- a/local.json
++++ b/local.json
+@@ -7,8 +7,10 @@
+         "cpus": "2",
+         "headless": "true",
+         "write_zeroes": "",
+-        "boot_wait": "60s",
+-        "mirror": ""
++        "boot_wait": "30s",
++        "mirror": "",
++        "hostname": "",
++        "consul_server": "nero.fios-router.home"
+     },
+     "builders": [
+         {
+@@ -48,6 +50,7 @@
+         },
+         {
+             "type": "qemu",
++            "format": "qcow2",
+             "boot_wait": "{{user `boot_wait`}}",
+             "http_directory": "http",
+             "disk_size": "{{user `disk_size`}}",
+@@ -112,6 +115,10 @@
+         },
+         {
+             "type": "shell",
++            "environment_vars": [
++                "HOSTNAME={{ user `hostname` }}",
++                "CONSUL_SERVER={{ user `consul_server` }}"
++            ],
+             "scripts": [
+                 "provision/postinstall.sh",
+                 "provision/qemu.sh",
+@@ -141,14 +148,5 @@
+             ],
+             "execute_command": "if [ ! -z \"{{user `write_zeroes`}}\" ]; then echo 'vagrant'|sudo -S sh '{{.Path}}'; fi"
+         }
+-    ],
+-    "post-processors": [
+-        [
+-            {
+-                "type": "vagrant",
+-                "keep_input_artifact": false,
+-                "output": "Arch-Linux-x86_64-{{ .Provider }}-{{isotime \"2006-01-02\"}}.box"
+-            }
+-        ]
+     ]
+ }
